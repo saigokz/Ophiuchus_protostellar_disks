@@ -2,7 +2,7 @@
 This is the default set of imaging scripts for the Ophiuchus protostellar disk survey project, 2023.1.00545.S.
 As a post-processing step of auto-selfcal (https://github.com/jjtobin/auto_selfcal), it split continuum MS (with line channels flagged), and performing continuum and line imagings. By adjusting the script settings, it can be applied to any project.
 
-After the series of processes in auto-selfcal is completed, in the Work directory, in addition to the auto-selfcal scripts and log files, the following should be present:
+After the series of processes in auto-selfcal is completed, in the Work directory, apart from the self-calibration scripts and log files, the following should be present. These serve as the starting point for imaging.
 - *_targets.ms (self-calibrated data stored in the CORRECTED column)
 - *_targets.contsub.ms (the continuum-subtracted MS data)
 - cont.dat　
