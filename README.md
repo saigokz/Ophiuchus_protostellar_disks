@@ -15,10 +15,10 @@ After the series of processes in auto-selfcal is completed, in the Work director
 - This script reads the cont.dat file.
 5. Continuum imaging: [Example] execfile('Oph_continuum_LB.v5.py')  in CASA (version 6.5.2 or later)
 - When running SB (Short Baseline data, i.e., TM2) or LB (Long Baseline data, i.e., TM1) in the Work directory, simply execute the corresponding script (e.g., Oph_continuum_SB.v5.py for SB, Oph_continuum_LB.v5.py for LB). For SBLB, please edit the Setting section in the script before execution to specify the path to the data directory.
-- In default: with robust = -2.0, -1.0, -0.5, 0.0, 0.5, 1.0, 2.0,  without uvtaper
+- By default: with robust = -2.0, -1.0, -0.5, 0.0, 0.5, 1.0, 2.0,  without uvtaper
 - If you wish to run parallel processing, edit the script and set parallel=True. The default value is False
 6. Line imaging [Example] execfile('Oph_spectral_lines_LB.v5.py')  in CASA (version 6.5.2 or later)
 - When running SB (Short Baseline data, i.e., TM2) or LB (Long Baseline data, i.e., TM1) in the Work directory, simply execute the corresponding script (e.g., Oph_spectral_lines_SB.v5.py for SB, Oph_spectral_lines_LB.v5.py for LB). For SBLB, please edit the Setting section in the script  before execution to specify the path to the data directory.
-- In default: C18O(2-1), 13CO(2-1), 12CO(2-1), SiO, SO, H2CO,etc. with robust = -0.5, 0.0, 0.5, 2.0, without uvtaper
+- By default: C18O(2-1), 13CO(2-1), 12CO(2-1), SiO, SO, H2CO,etc. with robust = -0.5, 0.0, 0.5, 2.0, without uvtaper
 - If you wish to run parallel processing, edit the script and set parallel=True. The default value is False
 
