@@ -2,7 +2,7 @@
 ## Imaging script (Imaging data) version 2 for Oph 2023.1.00545.S 
 ## This script was written for CASA 6.5.2 or later 
 ##
-VERSION_KS = "5.0"
+VERSION_KS = "6.0"
 ##
 #################################################################
 ## Usage
@@ -29,6 +29,7 @@ VERSION_KS = "5.0"
 ##  v.3.0 2025_08_10: logging, ajustment of imaging params By K.Saigo
 ##  v.4.0 2025_08_13: use get_sensitivity in selfcal_helpers By K.Saigo
 ##  v.5.0 2025_08_15: Estimattion of sigma from a temporary CLEAN image By K.Saigo
+##  v.6.0 2025_09_30: Fixed the flux measurement when no mask was applied  K.Saigo
 ####
 # Reduced by
 Reducted_by = " "  # optional  ex. "John Smith"  (This is just written in the LOG file.)
@@ -49,7 +50,7 @@ sys.path.append("./")
 ################ USERS NEED TO SET STUFF HERE     ##############
 ################################################################
 ### parallel mode? 
-parallel   = False #True  
+parallel   = False #True   
 
 
 ## Setting 1: Data Path and Search name
@@ -62,15 +63,15 @@ MS_name = '*.ms.ave.cont'
 
 ## Setting 3: Data selection (select data)
 #data_select = 'SB'
-data_select = 'LB'
-#data_select = 'SBLB'
+#data_select = 'LB'
+data_select = 'SBLB'
 #data_select = '7M'
 #data_select = 'TM'
 
 
 ### Setting 4: Imaging Parameters
-# If sigma0 = -1 is set, sigma is estimated by a temporal CLEAN image.
-sigma0      = -1  # or real number (Jy/Beam) (ex, set 4.4e-5 for 0.044 mJy/beam). 
+# If sigma0 = -1 is set, sigma is estimated by  atemporal CLEAN image.
+sigma0      = -1 # or real number (Jy/Beam) (ex, set 4.4e-5 for 0.044 mJy/beam). 
 scales      = -1 # scale = -1, the default value will be used.
 cellsize    = -1 # cellsize = -1, the default value will be used.
 imsize      = -1 # imsize = -1, the default value will be used.
@@ -278,8 +279,13 @@ for uvtaper in uvtaper_all:
       cwd = os.getcwd()
       ver_line = casalog.version()
       im_mask =imagename+'.mask'
+      check_mask = imstat(im_mask)
       sigma_final = imstat(imagename=imagename+'.image.tt0',mask=f'"{im_mask}" == 0')['rms'][0]
-      Flux_final  = imstat(imagename=imagename+'.image.tt0',mask=f'"{im_mask}" == 1')['flux'][0]
+      if check_mask['max'][0] > 0:
+         Flux_final  = imstat(imagename=imagename+'.image.tt0',mask=f'"{im_mask}" == 1')['flux'][0]
+      else:
+         print('No mask region was found, so the flux is recorded as 0Jy in the log file')
+         Flux_final = 0.0
       Peak_final  = imstat(imagename=imagename+'.image.tt0')['max'][0]
       Peak_Pos_final  = imstat(imagename=imagename+'.image.tt0')['maxposf']
       im_final = imagename+'.image.tt0'
