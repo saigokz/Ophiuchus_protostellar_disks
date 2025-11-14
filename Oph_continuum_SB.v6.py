@@ -55,8 +55,9 @@ parallel   = False #True
 
 ## Setting 1: Data Path and Search name
 path_SB = './'
-path_LB = './'
-#path_7M = '/lwk/2023.1.01234.S/J162145.1_a_06_7M/calibrated/Work_SB_J162145.1'
+#path_LB = './'
+#path_7M = '/lwk/saigo/J1234_a_06_7M/Work_SB_J1234.1'
+
 
 ## Setting 2: Search rule for MS data names
 MS_name = '*.ms.ave.cont'  
@@ -111,10 +112,25 @@ if data_select=='LB':
 if data_select=='SBLB':
    vislist1=glob.glob(path_SB+'/'+MS_name)
    vislist2=glob.glob(path_LB+'/'+MS_name)
+   #check data
+   print('MS list in path_SB '+path_SB+' matching '+MS_name)
+   print(vislist1)
+   print('MS list in path_LB '+path_LB+' matching '+MS_name)
+   print(vislist2)
+   if not vislist1:
+      print(f"No MS data matching '{MS_name}' in {path_SB}.")
+      if input("Continue? (y/n): ").lower() != "y":
+         sys.exit()
+   if not vislist2:
+      print(f"No MS data matching '{MS_name}' in {path_LB}.")
+      if input("Continue? (y/n): ").lower() != "y":
+         sys.exit()
 if data_select=='7M':
    vislist1=glob.glob(path_7M+'/'+MS_name)
 #
 vislist = vislist1 + vislist2 + vislist3
+vislist = list(dict.fromkeys(vislist)) #remove duplicates
+print('MS list used for CLEAN')
 print(vislist)
 if len(vislist) == 0:
    sys.exit('No Measurement sets found in current working directory, exiting')

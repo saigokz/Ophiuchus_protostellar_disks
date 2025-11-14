@@ -1,7 +1,7 @@
 ## Split & Concat v1 K. Saigo 2025/07/12
 ## Split & Concat v2 K. Saigo 2025/07/19 for Tobin's Auto-Selfcal
-## Split & Concat v3 K. Saigo 2025/08/21 minor updata about option 
-##
+## Split & Concat v3 N.Ohashi K.Saigo 2025/11/10  bug fix about mstransfer
+##          fix bug abount dataclumn setting in mstransform
 import os
 import pprint
 import datetime
@@ -18,11 +18,12 @@ dir_SB      = './'
 dir_LB      = './'
 #dir_TM      = './'
 #dir_7M      = './'
- 
+
 search_word = '_targets.ms'   #ex. uid___A002_X11c9ad1_X763f_targets.ms
-split_column  = 'corrected' #  split datacolumn
-#search_word = '.ms.split.cal'   #
-#split_column  = 'data' #  split datacolumn
+#search_word = '.split.cal'   #
+
+split_column  = 'corrected' #  split CORRECTED datacolumn
+#split_column  = 'data' #  split DATA  datacolumn
 
 output_log  = 'Targets_Split.Log'
 
@@ -147,7 +148,8 @@ if Exec_Split:
             EB_list.append(outputvis)
             EB_list_org.append(vis) 
             print(' Split:'+outputvis)
-            mstransform(vis=vis, spw = sci_spw_st, field=Fname, datacolumn=split_column, outputvis=outputvis, reindex=False)
+            mstransform(vis=vis, spw = sci_spw_st,datacolumn=split_column,
+                        field=Fname, outputvis=outputvis, reindex=False)
         #
         # Conatination
         if Concat_TMP:

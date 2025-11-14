@@ -2,7 +2,7 @@
 ## Spectral Lines Imaging script version 2 for Oph 2023.1.00545.S 
 ## This script was written for CASA 6.5.2 or later 
 ##
-VERSION_KS = "5.0"
+VERSION_KS = "6.0"
 ##
 ###############################################################
 ## Usage
@@ -29,6 +29,7 @@ VERSION_KS = "5.0"
 ##  v.3.0 2025_08_10: Estimating sigma from a temporary dirty map By K.Saigo
 ##  v.4.0 2025_08_13: Parallel setting and Remove unused imports By K.Saigo  
 ##  v.5.0 2025_08_18: Update moment 1 map By K.Saigo
+##  v.6.0 2025_11_14: Update LOG generation (cases where tclean.last is not generated) By K.Saigo
 ####
 #
 ## Sample of Spectral Windows of 2023.1.00545.S (7 unique spectral windows)
@@ -64,9 +65,9 @@ from datetime import datetime, timezone
 parallel   = False #True  
 
 ## Setting 1: Data Path 
-path_SB = './'
+#path_SB = './'
 path_LB = './'
-#path_7M = '/lwk/2023.1.01234.S/J162145.1_a_06_7M/Work_SB_J162145.1'
+#path_7M = '/lwk/saigo/J162145.1_a_06_7M/Work_SB_J162145.1'
 
 ## Setting 2: Search rule for MS data names
 MS_name = '*_targets.contsub.ms'
@@ -81,13 +82,13 @@ data_select = 'LB'
 
 ### Setting 4: Imaging Parameters
 # If sigma0 = -1 is set, sigma is estimated by temporary dirty map (channel 1~2)
-# Or you can set a specific value (ex. 1.2e-4) [unit is Jy/Beam]
+# Or you can set a specific value by setting sigma0 to a real value (ex. 1.2e-4) [unit is Jy/Beam]
 sigma0      = -1 # 
 scales      = -1 # scale = -1, the default value will be used.
 cellsize    = -1 # cellsize = -1, the default value will be used.
 imsize      = -1 # imsize = -1, the default value will be used.
 datacolumn  = 'corrected' # or 'data'
-robust      = [-0.5, 0.0, 0.5, 2.0] # [0.5]
+robust      = [-0.5, 0.0, 0.5, 2.0] #
 uvtaper     = [''] # or ['1000klambda', '2000klambda']
 
 ## default imaging parameters
@@ -182,10 +183,25 @@ if data_select=='LB':
 if data_select=='SBLB':
    vislist1=glob.glob(path_SB+'/'+MS_name)
    vislist2=glob.glob(path_LB+'/'+MS_name)
+   #check data
+   print('MS list in path_SB '+path_SB+' matching '+MS_name)
+   print(vislist1)
+   print('MS list in path_LB '+path_LB+' matching '+MS_name)
+   print(vislist2)
+   if not vislist1:
+      print(f"No MS data matching '{MS_name}' in {path_SB}.")
+      if input("Continue? (y/n): ").lower() != "y":
+         sys.exit()
+   if not vislist2:
+      print(f"No MS data matching '{MS_name}' in {path_LB}.")
+      if input("Continue? (y/n): ").lower() != "y":
+         sys.exit()
 if data_select=='7M':
    vislist1=glob.glob(path_7M+'/'+MS_name)
 
 vislist = vislist1 + vislist2 + vislist3
+vislist = list(dict.fromkeys(vislist)) #remove duplicates
+print('MS list used for CLEAN')
 print(vislist)
 if len(vislist) == 0:
    sys.exit('No Measurement sets found in current working directory, exiting')
@@ -349,6 +365,7 @@ for line in image_list:
          st_log = []
          st_log.append(f"## Moment 1 map including pixels with > 3 sigma")
          st_log.append(f"## sigma (measured in chan 1 ~ 2) = {str(sigma_final)}")
+         if not os.path.exists('immoments.last'): os.system('echo "No immoments.last" > immoments.last')
          for item in reversed(st_log): os.system("sed -i '1i "+ item+" ' immoments.last")
          os.system('cp -f immoments.last '+im_mom+'.sig3_mom1'+'_immoments.LOG')
 
@@ -358,6 +375,7 @@ for line in image_list:
          st_log = []
          st_log.append(f"## Moment 1 map including pixels with > 5 sigma")
          st_log.append(f"## sigma (measured in chan 1 ~ 2) = {str(sigma_final)}")
+         if not os.path.exists('immoments.last'): os.system('echo "No immoments.last" > immoments.last')
          for item in reversed(st_log): os.system("sed -i '1i "+ item+" ' immoments.last")
          os.system('cp -f immoments.last '+im_mom+'.sig5_mom1'+'_immoments.LOG')
          #
@@ -398,11 +416,14 @@ for line in image_list:
          #
          fn_log = imagename+'.tclean.LOG'
          for item in st_log: print(item)
-         os.system('cp -f tclean.last '+fn_log)      
+         if os.path.exists('tclean.last'):
+            os.system('cp -f tclean.last '+fn_log)
+         else:
+            print("No tclean.last, but don't worry, LOG file is generated.")
+            open(fn_log, "w").write("Since no tclean.last was found, only the log part was output. \n")
          for item in reversed(st_log): os.system("sed -i '1i "+ item+" ' "+fn_log)
          print(" export LOG file: "+fn_log)
          print("------------ finish imaging of "+imagename+" ---------------")
-
          
 ###############################################################
 ################       CLEANUP            #####################

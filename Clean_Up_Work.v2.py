@@ -12,7 +12,7 @@ import glob
 import sys
 import os
 sys.path.append("./")
-from selfcal_helpers import *
+#from selfcal_helpers import *
 
 
 ## Name of Trash directory

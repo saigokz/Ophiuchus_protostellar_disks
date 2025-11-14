@@ -9,6 +9,7 @@
 ## Modifycation history:
 ##  - 2025_08_01 Introduction of statwt by Kazuya Saigo
 ##  - 2025_08_22 Handle No CORRECTED column case by Kazuya Saigo
+##  - 2025_11_12 Updated for recent update of selfcal_helpers.py in auto-selfcal by K.Saigo
 ##
 ## Usage:
 ## 1. Place the MS data set (containing only one science target field and sharing the same SPWs) and cont.dat in the same work directory. This is Not support concatenated data sets.
@@ -22,6 +23,7 @@ import numpy as np
 from scipy import stats
 import glob
 import sys
+import inspect
 sys.path.append("./")
 from selfcal_helpers import *
 
@@ -108,8 +110,12 @@ if export_average_contMS:
       os.system('cp -r '+vis + '  '+vis_tmp)
       spwsarray_dict = {vis_tmp: np.concatenate([tmp[vis][band]['spwarray'] for band in bands])}
       print(spwsarray_dict)
-      #flag line
-      flag_spectral_lines([vis_tmp],all_targets,spwsarray_dict)
+      #flag line updated 2025_11_12
+      #flag_spectral_lines([vis_tmp],all_targets,spwsarray_dict)
+      if 'telescope' in inspect.signature(flag_spectral_lines).parameters:
+         flag_spectral_lines([vis_tmp],all_targets,spwsarray_dict, telescope)
+      else:
+         flag_spectral_lines([vis_tmp],all_targets,spwsarray_dict)      
       print('split averaged cont MS: '+outputvis)
       if os.path.exists(outputvis):
          os.system('rm -rf '+outputvis)
