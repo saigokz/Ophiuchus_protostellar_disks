@@ -2,7 +2,7 @@
 ## Imaging script (Imaging data) version 2 for Oph 2023.1.00545.S 
 ## This script was written for CASA 6.5.2 or later 
 ##
-VERSION_KS = "6.0"
+VERSION_KS = "6.1"
 ##
 #################################################################
 ## Usage
@@ -28,8 +28,9 @@ VERSION_KS = "6.0"
 ##  v.2.1 2025_08_08: bug fix (delete nsigma option etc.) By J.Hashimoto
 ##  v.3.0 2025_08_10: logging, ajustment of imaging params By K.Saigo
 ##  v.4.0 2025_08_13: use get_sensitivity in selfcal_helpers By K.Saigo
-##  v.5.0 2025_08_15: Estimattion of sigma from a temporary CLEAN image By K.Saigo
-##  v.6.0 2025_09_30: Fixed the flux measurement when no mask was applied  K.Saigo
+##  v.5.0 2025_08_15: Estimation of sigma from a temporary CLEAN image K.Saigo
+##  v.6.0 2025_09_30: Fixed flux measurement when no mask was applied K.Saigo
+##  v.6.1 2025_11_18: Add uvtaper info to imagename. K.Saigo
 ####
 # Reduced by
 Reducted_by = " "  # optional  ex. "John Smith"  (This is just written in the LOG file.)
@@ -54,18 +55,18 @@ parallel   = False #True
 
 
 ## Setting 1: Data Path and Search name
-path_SB = './'
-#path_LB = './'
+#For SBLB imaging with two datasets, specify the directory of each MS.
+path_SB = './Work_SB_J1234/'
+path_LB = './Work_LB_J1234/'
 #path_7M = '/lwk/saigo/J1234_a_06_7M/Work_SB_J1234.1'
-
 
 ## Setting 2: Search rule for MS data names
 MS_name = '*.ms.ave.cont'  
 
 ## Setting 3: Data selection (select data)
-data_select = 'SB'
+#data_select = 'SB'
 #data_select = 'LB'
-#data_select = 'SBLB'
+data_select = 'SBLB'
 #data_select = '7M'
 #data_select = 'TM'
 
@@ -164,6 +165,7 @@ phasecenter = '' #the same as that of MSs
 for uvtaper in uvtaper_all:
    for robust in robust_all:
       imagename=prefix+'_'+data_select+'_continuum_robust_'+str(robust)
+      if uvtaper.strip() != "": imagename = imagename+'_tp_'+uvtaper.strip()
       ## Estimation of sigma for determining the threshold
       sigma = sigma0
       st_sigma = "User defined vale" # comment for LOG

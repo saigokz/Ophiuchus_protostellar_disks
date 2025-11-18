@@ -2,7 +2,7 @@
 ## Spectral Lines Imaging script version 2 for Oph 2023.1.00545.S 
 ## This script was written for CASA 6.5.2 or later 
 ##
-VERSION_KS = "6.0"
+VERSION_KS = "6.1"
 ##
 ###############################################################
 ## Usage
@@ -29,7 +29,8 @@ VERSION_KS = "6.0"
 ##  v.3.0 2025_08_10: Estimating sigma from a temporary dirty map By K.Saigo
 ##  v.4.0 2025_08_13: Parallel setting and Remove unused imports By K.Saigo  
 ##  v.5.0 2025_08_18: Update moment 1 map By K.Saigo
-##  v.6.0 2025_11_14: Update LOG generation (cases where tclean.last is not generated) By K.Saigo
+##  v.6.0 2025_11_14: Update LOG generation if no tclean.last K.Saigo
+##  v.6.1 2025_11_18: Add uvtaper info to imagename. K.Saigo
 ####
 #
 ## Sample of Spectral Windows of 2023.1.00545.S (7 unique spectral windows)
@@ -66,17 +67,17 @@ parallel   = False #True
 
 ## Setting 1: Data Path
 #For SBLB imaging  with two datasets, specify the directory of each MS.
-path_SB = './Work_SB_J1234/'
-path_LB = './Work_LB_J1234/'
+path_SB = './'
+#path_LB = './'
 #path_7M = '/lwk/saigo/J1234_a_06_7M/Work_SB_J1234.1'
 
 ## Setting 2: Search rule for MS data names
 MS_name = '*_targets.contsub.ms'
 
 ## Setting 3: Data selection (select data)
-#data_select = 'SB'
+data_select = 'SB'
 #data_select = 'LB'
-data_select = 'SBLB'
+#data_select = 'SBLB'
 #data_select = '7M'
 #data_select = 'TM'
 
@@ -244,6 +245,7 @@ for line in image_list:
    for uvtaper in image_master_list[line]["uvtaper"]:
       for robust in image_master_list[line]["robust"]:
          imagename = prefix+'_'+data_select+'_'+line+'_robust_'+str(robust)
+         if uvtaper.strip() != "": imagename = imagename+'_tp_'+uvtaper.strip()
          msmd.open(vislist[0])
          chan_width_Hz=abs( msmd.chanwidths(int(spw))[0]) #channel width [Hz]
          msmd.close()
